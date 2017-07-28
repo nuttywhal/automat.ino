@@ -6,6 +6,8 @@
 
 #include <boost/asio.hpp>
 
+#include "Constants.h"
+
 namespace automat
 {
 	// The JSON-RPC server is listening at 115,200 baud.
