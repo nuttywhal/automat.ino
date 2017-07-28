@@ -61,10 +61,10 @@ namespace automat
 		}
 	}
 
-	bool Automat::move(int x, int y)
+	bool Automat::move(unsigned int x, unsigned int y)
 	{
 		point curr = get_cursor_pos();
-		point dest = { x, y };
+		point dest = { (LONG)x, (LONG)y };
 
 		const std::string proc_name("moveMouse");
 		std::map<std::string, std::string> params;
@@ -73,6 +73,45 @@ namespace automat
 		params["a_y"] = std::to_string(curr.y);
 		params["b_x"] = std::to_string(dest.x);
 		params["b_y"] = std::to_string(dest.y);
+
+		// Construct and send a remote procedure call request.
+		send_request(construct_request(proc_name, params));
+
+		// Receive and parse the response.
+		return parse_response(read_response());
+	}
+
+	bool Automat::click(Key key)
+	{
+		const std::string proc_name("click");
+		std::map<std::string, std::string> params;
+		params["button"] = std::to_string(key);
+
+		// Construct and send a remote procedure call request.
+		send_request(construct_request(proc_name, params));
+
+		// Receive and parse the response.
+		return parse_response(read_response());
+	}
+
+	bool Automat::hold(Key key)
+	{
+		const std::string proc_name("hold");
+		std::map<std::string, std::string> params;
+		params["button"] = std::to_string(key);
+
+		// Construct and send a remote procedure call request.
+		send_request(construct_request(proc_name, params));
+
+		// Receive and parse the response.
+		return parse_response(read_response());
+	}
+
+	bool Automat::unhold(Key key)
+	{
+		const std::string proc_name("unhold");
+		std::map<std::string, std::string> params;
+		params["button"] = std::to_string(key);
 
 		// Construct and send a remote procedure call request.
 		send_request(construct_request(proc_name, params));
@@ -186,7 +225,7 @@ namespace automat
 			params.put(pair.first, pair.second);
 
 			// Store non-string parameter values for the hack described later.
-			if (nonStringParameters.find(pair.first) != nonStringParameters.end()) {
+			if (_nonStringParameters.find(pair.first) != _nonStringParameters.end()) {
 				values.push_back(pair.second);
 			}
 		}

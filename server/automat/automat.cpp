@@ -44,6 +44,30 @@ bool AutomatController::moveMouse(aJsonObject *params)
     return true;
 }
 
+bool AutomatController::click(aJsonObject *params)
+{
+    aJsonObject *_key = aJson.getObjectItem(params, "button");
+    Mouse.click(_key->valueint);
+
+    return true;
+}
+
+bool AutomatController::hold(aJsonObject *params)
+{
+    aJsonObject *_key = aJson.getObjectItem(params, "button");
+    Mouse.press(_key->valueint);
+
+    return true;
+}
+
+bool AutomatController::unhold(aJsonObject *params)
+{
+    aJsonObject *_key = aJson.getObjectItem(params, "button");
+    Mouse.release(_key->valueint);
+
+    return true;
+}
+
 bool AutomatController::press(aJsonObject *params)
 {
     aJsonObject *_key = aJson.getObjectItem(params, "key");

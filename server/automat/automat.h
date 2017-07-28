@@ -5,7 +5,7 @@
 
 // The number of JSON-RPC procedures registered.
 // This is used for initializing the server.
-#define JSON_PROC_COUNT (8)
+#define JSON_PROC_COUNT (11)
 
 class AutomatController : public JsonRPCServer
 {
@@ -14,6 +14,9 @@ public:
 
     DECLARE_JSON_PROC(AutomatController, calibrate,  bool);
     DECLARE_JSON_PROC(AutomatController, moveMouse,  bool);
+    DECLARE_JSON_PROC(AutomatController, click,      bool);
+    DECLARE_JSON_PROC(AutomatController, hold,       bool);
+    DECLARE_JSON_PROC(AutomatController, unhold,     bool);
     DECLARE_JSON_PROC(AutomatController, press,      bool);
     DECLARE_JSON_PROC(AutomatController, release,    bool);
     DECLARE_JSON_PROC(AutomatController, releaseAll, bool);
@@ -24,6 +27,9 @@ public:
     BEGIN_JSON_REGISTRATION
         REGISTER_JSON_PROC(calibrate,  JSON_RPC_RET_TYPE_NUMERIC);
         REGISTER_JSON_PROC(moveMouse,  JSON_RPC_RET_TYPE_NUMERIC);
+        REGISTER_JSON_PROC(click,      JSON_RPC_RET_TYPE_NUMERIC);
+        REGISTER_JSON_PROC(hold,       JSON_RPC_RET_TYPE_NUMERIC);
+        REGISTER_JSON_PROC(unhold,     JSON_RPC_RET_TYPE_NUMERIC);
         REGISTER_JSON_PROC(press,      JSON_RPC_RET_TYPE_NUMERIC);
         REGISTER_JSON_PROC(release,    JSON_RPC_RET_TYPE_NUMERIC);
         REGISTER_JSON_PROC(releaseAll, JSON_RPC_RET_TYPE_NUMERIC);

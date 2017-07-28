@@ -3,7 +3,15 @@
 
 namespace automat
 {
-	// Arduino keyboard modifiers
+	// Mouse buttons.
+	// https://github.com/arduino-libraries/Mouse/blob/master/src/Mouse.h
+
+	const unsigned int M_LEFT   = 0x01;
+	const unsigned int M_RIGHT  = 0x02;
+	const unsigned int M_MIDDLE = 0x04;
+	const unsigned int M_ALL    = 0x07;
+
+	// Arduino keyboard modifiers.
 	// http://arduino.cc/en/Reference/KeyboardModifiers
 	
 	const unsigned int L_CTRL   = 0x80;

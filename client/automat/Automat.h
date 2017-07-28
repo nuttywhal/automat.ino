@@ -12,8 +12,9 @@
 
 namespace automat
 {
-	// Represents a keyboard key button. The values are mapped to the
-	// ASCII character set. Keyboard modifiers are defined in constants.h.
+	// Represents a keyboard key or a mouse button. The values are mapped to
+	// the ASCII character set. Keyboard modifiers and mouse button constants
+	// are defined in constants.h.
 	typedef unsigned int Key;
 
 	// Stores screen coordinates of the cursor.
@@ -48,10 +49,36 @@ namespace automat
 
 		/**
 		 * Move the mouse cursor from the current location to the specified location.
+		 *
 		 * \param X - The x-coordinate of the destination location.
 		 * \param Y - The y-coordinate of the destination location.
 		 */
-		bool move(int, int);
+		bool move(unsigned int, unsigned int);
+
+		/**
+		 * Sends a momentary click to the computer at the location of the cursor.
+		 * This is the same as pressing and immediately releasing the mouse button.
+		 *
+		 * \param Button - The mouse button to press with.
+		 */
+		bool click(Key key = M_LEFT);
+
+		/**
+		 * Sends a button press to a connected computer. A press is the equivalent of
+		 * clicking and continuously holding the mouse button. A press is cancelled
+		 * with unhold().
+		 *
+		 * \param Button - The mouse button to hold down.
+		 */
+		bool hold(Key key = M_LEFT);
+
+		/**
+		 * Sends a message that a previously pressed button (invoked through hold()) is
+		 * released. Defaults to the left button.
+		 *
+		 * \param Button - The mouse button to release.
+		 */
+		bool unhold(Key key = M_LEFT);
 
 		/**
 		 * When called, press() functions as if a key were pressed and held
@@ -105,13 +132,21 @@ namespace automat
 
 		// A list of parameter names that have non-string values.
 		// See documentation for construct_request.
-		std::set<std::string> nonStringParameters = {
-			"key", "x", "y", "factor",
-			"a_x", "a_y", "b_x", "b_y"
+		const std::set<std::string> _nonStringParameters = {
+			"key",
+			"button",
+			"factor",
+			"a_x",
+			"a_y",
+			"b_x",
+			"b_y",
+			"x",
+			"y"
 		};
 
 		/**
 		 * Construct a JSON-RPC request payload.
+		 *
 		 * \param Procedure - The name of the remote procedure to be invoked.
 		 * \param Paramaters - A mapping of parameter names to paramater values.
 		 */
@@ -119,29 +154,36 @@ namespace automat
 
 		/**
 		 * Send a JSON-RPC request payload to the JSON-RPC server.
+		 *
 		 * \param Payload - JSON-RPC request payload.
 		 */
 		void send_request(std::string);
 
 		/**
 		 * Read the JSON-RPC response to a JSON-RPC request.
+		 *
 		 * \returns JSON-RPC response.
 		 */
 		std::string read_response(void);
 
 		/**
 		 * Parse a JSON-RPC response for the value to its "result" key.
+		 *
 		 * \returns The value of the "result" key.
 		 */
 		bool parse_response(std::string);
 
 		/**
 		 * Retrieves the position of the mouse cursor, in screen coordinates.
+		 *
+		 * \returns The cursor location.
 		 */
 		point get_cursor_pos(void);
 
 		/**
 		 * Returns the coordinates of the bottom right corner of the screen.
+		 *
+		 * \returns The dimensions of the screen.
 		 */
 		point get_resolution(void);
 	};
