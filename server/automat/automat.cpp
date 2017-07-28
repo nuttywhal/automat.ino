@@ -9,37 +9,49 @@ AutomatController::AutomatController(Stream *stream) : JsonRPCServer(stream)
     // Intentionally empty. Nothing to do.
 }
 
-bool AutomatController::pressKey(aJsonObject *params)
+bool AutomatController::press(aJsonObject *params)
 {
     aJsonObject *_key = aJson.getObjectItem(params, "key");
     Keyboard.press(_key->valueint);
+
+    return true;
 }
 
-bool AutomatController::releaseKey(aJsonObject *params)
+bool AutomatController::release(aJsonObject *params)
 {
     aJsonObject *_key = aJson.getObjectItem(params, "key");
     Keyboard.release(_key->valueint);
+
+    return true;
 }
 
-bool AutomatController::releaseAllKeys(aJsonObject *params)
+bool AutomatController::releaseAll(aJsonObject *params)
 {
     Keyboard.releaseAll();
+
+    return true;
 }
 
 bool AutomatController::write(aJsonObject *params)
 {
     aJsonObject *_key = aJson.getObjectItem(params, "key");
     Keyboard.write(_key->valueint);
+
+    return true;
 }
 
 bool AutomatController::print(aJsonObject *params)
 {
     aJsonObject *_key = aJson.getObjectItem(params, "message");
     Keyboard.print(_key->valuestring);
+
+    return true;
 }
 
 bool AutomatController::println(aJsonObject *params)
 {
     aJsonObject *_key = aJson.getObjectItem(params, "message");
     Keyboard.println(_key->valuestring);
+
+    return true;
 }
