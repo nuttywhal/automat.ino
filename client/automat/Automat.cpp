@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdlib>
+#include <cmath>
+#include <random>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -11,6 +13,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "automat.h"
+#include <iostream>
 
 namespace automat
 {
@@ -64,8 +67,14 @@ namespace automat
 
 	bool Automat::move(unsigned int x, unsigned int y)
 	{
+        point resolution = get_resolution();
 		point curr = get_cursor_pos();
-		point dest = { (LONG)x, (LONG)y };
+
+		point dest = {
+            // Constrain the points to be within the screen.
+            std::min(std::max((LONG)x, 0L), resolution.x),
+            std::min(std::max((LONG)y, 0L), resolution.y)
+        };
 
 		const std::string proc_name("moveMouse");
 		std::map<std::string, std::string> params;
@@ -95,8 +104,8 @@ namespace automat
 			point a = { curr.x, curr.y };
 			point b = {
 				// Constrain the points to be within the screen.
-				std::min(std::max((int)dest.x, 0), (int)resolution.x),
-				std::min(std::max((int)dest.y, 0), (int)resolution.y)
+				std::min(std::max((LONG)dest.x, 0L), resolution.x),
+                std::min(std::max((LONG)dest.y, 0L), resolution.y)
 			};
 
 			// If the slope is steep, invert the x and y values so
@@ -151,6 +160,88 @@ namespace automat
 		}
 
 		return true;
+	}
+
+	bool Automat::wind_move(unsigned int x,
+		                    unsigned int y,
+		                    double gravity,
+		                    double wind,
+		                    double minWait,
+		                    double maxWait,
+		                    double maxStep,
+		                    double targetArea)
+	{
+        point resolution = get_resolution();
+        point curr = get_cursor_pos();
+
+        point dest = {
+            // Constrain the points to be within the screen.
+            std::min(std::max((LONG)x, 0L), resolution.x),
+            std::min(std::max((LONG)y, 0L), resolution.y)
+        };
+
+        double vx   = 0.0;  // Velocity.x
+        double vy   = 0.0;  // Velocity.y
+        double vm   = 0.0;  // Velocity Magnitude
+        double wx   = 0.0;  // Wind.x
+        double wy   = 0.0;  // Wind.y
+        double rd   = 0.0;  // Random Distribution
+        double dist = 0.0;  // Distance
+        double step = 0.0;  // Step
+
+        while (std::hypot(dest.x - curr.x, dest.y - curr.y) > 1) {
+            dist = std::hypot(dest.x - curr.x, dest.y - curr.y);
+            wind = std::min(wind, dist);
+
+            if (dist > targetArea) {
+                std::uniform_int_distribution<int> distribution(0, (int)std::round(wind) * 2 + 1);
+                wx = wx / std::sqrt(3) + (distribution(_generator) - wind) / std::sqrt(5);
+                wy = wy / std::sqrt(3) + (distribution(_generator) - wind) / std::sqrt(5);
+            }
+            else {
+                wx = wx / std::sqrt(2);
+                wy = wy / std::sqrt(2);
+
+                if (maxStep < 3) {
+                    std::uniform_int_distribution<int> distribution(3, 6);
+                    maxStep = distribution(_generator);
+                }
+                else {
+                    maxStep = maxStep / std::sqrt(5);
+                }
+            }
+
+            vx += wx + gravity * (dest.x - curr.x) / dist;
+            vy += wy + gravity * (dest.y - curr.y) / dist;
+
+            if (std::hypot(vx, vy) > maxStep) {
+                std::uniform_int_distribution<int> distribution(0, (int)std::round(maxStep) / 2);
+                rd = maxStep / 2.0 + distribution(_generator);
+                vm = std::sqrt(vx * vx + vy * vy);
+                vx = (vx / vm) * rd;
+                vy = (vy / vm) * rd;
+            }
+
+            point next;
+            next.x = curr.x + (LONG)vx;
+            next.y = curr.y + (LONG)vy;
+
+            if (curr.x != next.x || curr.y != next.y) {
+                move(next.x, next.y);
+            }
+
+            step = std::hypot(next.x - curr.x, next.y - curr.y);
+            sleep((unsigned int)(std::round(maxWait - minWait) * (step / maxStep) + minWait));
+
+            // Update cursor position.
+            curr = get_cursor_pos();
+        }
+
+        if (curr.x != dest.x || curr.y != dest.y) {
+            move(dest.x, dest.y);
+        }
+
+        return true;
 	}
 
 	bool Automat::click(Key key)

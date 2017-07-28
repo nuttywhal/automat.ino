@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <random>
 
 #include <boost/asio.hpp>
 #include <windows.h>
@@ -63,6 +64,29 @@ namespace automat
 		 * \param Y - The y-coordinate of the destination location.
 		 */
 		bool linear_move(unsigned int, unsigned int);
+
+		/**
+		 * Move the mouse cursor from the current location to the specified location
+		 * using the wind mouse algorithm designed by BenLand100 & Flight from
+		 * the SRL Resource Library. Ported from Pascal into C++.
+         *
+         * \param X - The x-coordinate of the destination location.
+		 * \param Y - The y-coordinate of the destination location.
+         * \param Gravity - Keeps the cursor on the path.
+         * \param Wind - Offsets the cursor on the path.
+         * \param Min Wait - Minimum time (ms) to wait between steps.
+         * \param Max Wait - Maximum time (ms) to wait between steps.
+         * \param Max Step - Max distance to travel in a step.
+         * \param Target Area - Radius of destination to reach before homing in.
+		 */
+		bool wind_move(unsigned int x,
+			           unsigned int y,
+			           double gravity = 2.0,
+			           double wind = 2.0,
+		               double minWait = 2.0,
+			           double maxWait = 10.0,
+			           double maxStep = 20.0,
+			           double targetArea = 50.0);
 
 		/**
 		 * Sends a momentary click to the computer at the location of the cursor.
@@ -135,6 +159,9 @@ namespace automat
 	private:
 		boost::asio::io_service _io;
 		boost::asio::serial_port _serial;
+
+        // Random Number Generator.
+        std::default_random_engine _generator;
 
 		// The baud rate that the JSON-RPC server is listening at.
 		const int BAUD_RATE = 115200;
