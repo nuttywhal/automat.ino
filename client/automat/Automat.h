@@ -56,6 +56,15 @@ namespace automat
 		bool move(unsigned int, unsigned int);
 
 		/**
+		 * Move the mouse cursor from the current location to the specified location
+		 * along a linear path.
+		 *
+		 * \param X - The x-coordinate of the destination location.
+		 * \param Y - The y-coordinate of the destination location.
+		 */
+		bool linear_move(unsigned int, unsigned int);
+
+		/**
 		 * Sends a momentary click to the computer at the location of the cursor.
 		 * This is the same as pressing and immediately releasing the mouse button.
 		 *

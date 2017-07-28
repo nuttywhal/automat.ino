@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <sstream>
@@ -79,6 +80,77 @@ namespace automat
 
 		// Receive and parse the response.
 		return parse_response(read_response());
+	}
+
+	bool Automat::linear_move(unsigned int x, unsigned int y)
+	{
+		// This is an implementation of Bresenham's line algorithm.
+		// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
+		point curr = get_cursor_pos();
+		point dest = { (LONG)x, (LONG)y };
+		point resolution = get_resolution();
+
+		while (curr.x != dest.x && curr.y != dest.y) {
+			point a = { curr.x, curr.y };
+			point b = {
+				// Constrain the points to be within the screen.
+				std::min(std::max((int)dest.x, 0), (int)resolution.x),
+				std::min(std::max((int)dest.y, 0), (int)resolution.y)
+			};
+
+			// If the slope is steep, invert the x and y values so
+			// that we can iterate over the y-ordinate instead of the
+			// x-ordinate.
+
+			bool steep = std::abs(b.y - a.y) / std::abs(b.x - a.x);
+
+			if (steep) {
+				std::swap(a.x, a.y);
+				std::swap(b.x, b.y);
+			}
+
+			// Depending on the quadrant, we must change the direction
+			// that the mouse is moving in.
+
+			int x_step = (a.x < b.x) ? 1 : -1;
+			int y_step = (a.y < b.y) ? 1 : -1;
+
+			int dx = std::abs(b.x - a.x);
+			int dy = std::abs(b.y - a.y);
+
+			double slope = (double)dy / (double)dx;
+			double error = 0;
+
+			point next = { curr.x, curr.y };
+			for (int i = 0; i < dx; i++) {
+
+				// Moving in the x-direction; or the y-direction
+				// if we iterated over the y-ordinate.
+				if (!steep) next.x += x_step;
+				else        next.y += x_step;
+
+				// Moving in the y-direction; or the x-direction
+				// if we iterated over the y-ordinate.
+				error += slope;
+				if (error >= 0.5) {
+					if (!steep) next.y += y_step;
+					else        next.x += y_step;
+
+					// Re-adjust the error to represent the distance
+					// from the top of the new pixel.
+					error -= 1;
+				}
+
+				// Move to the next location on the line.
+				move(next.x, next.y);
+			}
+
+			// Update current cursor position.
+			curr = get_cursor_pos();
+		}
+
+		return true;
 	}
 
 	bool Automat::click(Key key)
