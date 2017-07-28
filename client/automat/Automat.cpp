@@ -1,6 +1,7 @@
-#include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -102,6 +103,11 @@ namespace automat
 
 		print(message);
 		return write(0xB0);
+	}
+
+	void Automat::sleep(unsigned int ms)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 	}
 
 	std::string Automat::construct_request(std::string proc_name, std::map<std::string, std::string> arg_map)

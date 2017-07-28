@@ -62,6 +62,11 @@ namespace automat
 		 */
 		bool println(std::string);
 
+		/**
+		 * Halt the current thread for the specified number of milliseconds.
+		 */
+		void sleep(unsigned int);
+
 	private:
 		boost::asio::io_service _io;
 		boost::asio::serial_port _serial;
