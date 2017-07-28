@@ -2,20 +2,24 @@
 #define AUTOMAT_H
 
 #include <map>
+#include <set>
 #include <string>
 
 #include <boost/asio.hpp>
+#include <windows.h>
 
-#include "Constants.h"
+#include "constants.h"
 
 namespace automat
 {
-	// The JSON-RPC server is listening at 115,200 baud.
-	const int BAUD_RATE = 115200;
-
 	// Represents a keyboard key button. The values are mapped to the
 	// ASCII character set. Keyboard modifiers are defined in constants.h.
 	typedef unsigned int Key;
+
+	// Stores screen coordinates of the cursor.
+	//   .x : the x-coordinate of the point.
+	//   .y : the y-coordinate of the point.
+	typedef POINT point;
 
 	class Automat
 	{
@@ -25,6 +29,29 @@ namespace automat
 		 * to read from the specified serial device.
 		 */
 		Automat(std::string port);
+
+		/**
+		 * The Arduino mouse library has no way of knowing how to move the
+		 * mouse cursor to a particular coordinate location on the screen.
+		 * It can only move some units (which is not necessarily in pixels)
+		 * relative to the cursor's current location.
+		 *
+		 * In order to achieve absolute positioning, there needs to be some
+		 * way to find a factor that, when multiplied by the units that the Arduino
+		 * uses to move the mouse, yields a pixel.
+		 *
+		 * With this calibration factor, we can instruct the Arduino to move
+		 * `n' pixels (or factor * Arduino units) relative to the current mouse
+		 * position.
+		 */
+		void calibrate();
+
+		/**
+		 * Move the mouse cursor from the current location to the specified location.
+		 * \param X - The x-coordinate of the destination location.
+		 * \param Y - The y-coordinate of the destination location.
+		 */
+		bool move(int, int);
 
 		/**
 		 * When called, press() functions as if a key were pressed and held
@@ -73,6 +100,16 @@ namespace automat
 		boost::asio::io_service _io;
 		boost::asio::serial_port _serial;
 
+		// The baud rate that the JSON-RPC server is listening at.
+		const int BAUD_RATE = 115200;
+
+		// A list of parameter names that have non-string values.
+		// See documentation for construct_request.
+		std::set<std::string> nonStringParameters = {
+			"key", "x", "y", "factor",
+			"a_x", "a_y", "b_x", "b_y"
+		};
+
 		/**
 		 * Construct a JSON-RPC request payload.
 		 * \param Procedure - The name of the remote procedure to be invoked.
@@ -97,6 +134,16 @@ namespace automat
 		 * \returns The value of the "result" key.
 		 */
 		bool parse_response(std::string);
+
+		/**
+		 * Retrieves the position of the mouse cursor, in screen coordinates.
+		 */
+		point get_cursor_pos(void);
+
+		/**
+		 * Returns the coordinates of the bottom right corner of the screen.
+		 */
+		point get_resolution(void);
 	};
 }
 

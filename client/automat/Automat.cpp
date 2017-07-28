@@ -1,7 +1,8 @@
 #include <chrono>
-#include <iostream>
+#include <cstdlib>
 #include <sstream>
 #include <thread>
+#include <vector>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -17,6 +18,67 @@ namespace automat
 	{
 		// Set the serial communication speed.
 		_serial.set_option(boost::asio::serial_port_base::baud_rate(BAUD_RATE));
+	}
+
+	void Automat::calibrate()
+	{
+		double factor = 1.0;
+		point resolution = get_resolution();
+
+		for (int step = 50; step < (int)(resolution.y * 0.4); step++) {
+
+			// Dummy values for the first conditional test.
+			point a = get_cursor_pos();
+			point b = { a.x, a.y };
+
+			while (std::abs(std::abs(b.x - a.x) - step) > 1 &&
+				   std::abs(std::abs(b.y - a.y) - step) > 1 &&
+				   std::abs(b.x - a.x) < resolution.x / 2.0 &&
+				   std::abs(b.y - a.y) < resolution.y / 2.0) {
+
+				// Keep mouse movements toward the center of the screen.
+				a = get_cursor_pos();
+				int x_dir = (a.x < resolution.x / 2.0) ? 1 : -1;
+				int y_dir = (a.y < resolution.y / 2.0) ? 1 : -1;
+
+				// Send JSON-RPC request to invoke the calibrate method
+				// on the Arduino. This will move the mouse (x * factor,
+				// y * factor) units relative to the current mouse position.
+				const std::string proc_name("calibrate");
+				std::map<std::string, std::string> params;
+
+				params["x"] = std::to_string(x_dir * step);
+				params["y"] = std::to_string(y_dir * step);
+				params["factor"] = std::to_string(factor);
+
+				send_request(construct_request(proc_name, params));
+				parse_response(read_response());
+
+				// Make adjustments to the calibration factor.
+				b = get_cursor_pos();
+				factor += (std::abs(b.x - a.x) < step ? 0.001 : -0.001);
+			}
+		}
+	}
+
+	bool Automat::move(int x, int y)
+	{
+		point curr = get_cursor_pos();
+		point dest = { x, y };
+
+		const std::string proc_name("moveMouse");
+		std::map<std::string, std::string> params;
+
+		params["a_x"] = std::to_string(curr.x);
+		params["a_y"] = std::to_string(curr.y);
+		params["b_x"] = std::to_string(dest.x);
+		params["b_y"] = std::to_string(dest.y);
+
+		// Construct and send a remote procedure call request.
+		send_request(construct_request(proc_name, params));
+
+		// Receive and parse the response.
+		return parse_response(read_response());
 	}
 
 	bool Automat::press(Key key)
@@ -112,19 +174,20 @@ namespace automat
 
 	std::string Automat::construct_request(std::string proc_name, std::map<std::string, std::string> arg_map)
 	{
-		std::string value;
+		// Non-string parameter values.
+		std::vector<std::string> values;
 
 		// Use property tree structure to store key/value pairs.
 		boost::property_tree::ptree pt;
 		boost::property_tree::ptree params;
 
-		for (auto &pair : arg_map) {
+		for (auto const &pair : arg_map) {
 			// Store parameter names and values.
 			params.put(pair.first, pair.second);
 
-			// Store value for the hack described later.
-			if (pair.first.compare("key") == 0) {
-				value = pair.second;
+			// Store non-string parameter values for the hack described later.
+			if (nonStringParameters.find(pair.first) != nonStringParameters.end()) {
+				values.push_back(pair.second);
 			}
 		}
 
@@ -142,9 +205,7 @@ namespace automat
 		// replace the string representation of the int value of the key, "key", with
 		// the actual int value.
 		
-		if (!value.empty()) {
-			boost::algorithm::erase_all(json, " ");
-			boost::algorithm::erase_all(json, "\n");
+		for (auto const &value : values) {
 			boost::algorithm::replace_all(json, "\"" + value + "\"", value);
 		}
 		
@@ -187,5 +248,30 @@ namespace automat
 		std::string result = pt.get<std::string>("result");
 
 		return boost::lexical_cast<bool>(result);
+	}
+
+	point Automat::get_cursor_pos(void)
+	{
+		point coordinates;
+		GetCursorPos(&coordinates);
+
+		return coordinates;
+	}
+
+	point Automat::get_resolution(void)
+	{
+		// See https://stackoverflow.com/a/8690641/8374167.
+
+		point coordinates;
+		RECT desktop;
+		HWND hDesktop;
+		
+		hDesktop = GetDesktopWindow();
+		GetWindowRect(hDesktop, &desktop);
+
+		coordinates.x = desktop.right;
+		coordinates.y = desktop.bottom;
+
+		return coordinates;
 	}
 }
