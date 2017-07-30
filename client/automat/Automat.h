@@ -130,6 +130,11 @@ namespace automat
 		 */
 		bool release_all(void);
 
+        /**
+         * Press key for a random interval between 10-50ms before releasing it.
+         */
+        bool tap(Key);
+
 		/**
 		 * Sends a keystroke to a connected computer. This is similar to
 		 * pressing and releasing a key on your keyboard. You can send some
@@ -150,6 +155,21 @@ namespace automat
 	 	 * keystroke.
 		 */
 		bool println(std::string);
+
+        /**
+         * Emulate human-like typing. If mistakes are enabled, this function
+         * will occassionally make typing mistakes and fix them.
+         *
+         * \param Message - A message to output.
+         * \param WPM - Rate at which to type the message (words per minutes).
+         * \param Mistakes - If true, typing mistakes will be made and amended.
+         * \param Accuracy - Probability of making a mistake when typing the
+         *                   the next character in the message.
+         */
+        bool type(std::string message,
+                  unsigned int wpm = 100,
+                  bool mistakes = true,
+                  unsigned int accuracy = 98);
 
 		/**
 		 * Halt the current thread for the specified number of milliseconds.

@@ -13,7 +13,6 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "automat.h"
-#include <iostream>
 
 namespace automat
 {
@@ -321,6 +320,19 @@ namespace automat
 		return parse_response(read_response());
 	}
 
+    bool Automat::tap(Key key)
+    {
+        // Hold down key.
+        press(key);
+
+        // Wait between 10-50ms.
+        std::uniform_int_distribution<int> distribution(10, 50);
+        sleep(distribution(_generator));
+
+        // Release the key.
+        return release(key);
+    }
+
 	bool Automat::write(Key key)
 	{
 		const std::string proc_name("write");
@@ -369,7 +381,58 @@ namespace automat
 		return write(0xB0);
 	}
 
-	void Automat::sleep(unsigned int ms)
+    bool Automat::type(std::string message,
+                       unsigned int wpm,
+                       bool mistakes,
+                       unsigned int accuracy)
+    {
+        // Delay needed between typing characters to achieve desired WPM.
+        const int MS_PER_CHAR = 12000 / wpm;
+
+        for (unsigned int i = 0; i < message.length(); i++) {
+            std::uniform_int_distribution<int> delay((int)(MS_PER_CHAR * 0.2),
+                                                     (int)(MS_PER_CHAR * 1.4));
+
+            // Type next character.
+            tap(message[i]);
+            sleep(delay(_generator));
+
+            std::uniform_int_distribution<int> randomProbability(0, 100);
+            if (mistakes && randomProbability(_generator) > (int)accuracy) {
+                
+                // 1. Make a mistake.
+                std::uniform_int_distribution<int> numMistakes(1, 3);
+                unsigned int badCharacters = numMistakes(_generator);
+
+                for (unsigned int j = 0; j < badCharacters; j++) {
+                    std::uniform_int_distribution<int> randomIndex(i - 2, i + 2);
+                    int keyIndex = randomIndex(_generator);
+
+                    // Constrain index to be within indexing range of message.
+                    keyIndex = std::min(std::max(keyIndex, 0), (int)message.length() - 1);
+
+                    tap(message[keyIndex]);
+                    sleep(delay(_generator));
+                }
+
+                // 2. Realize mistake and reach for the backspace key.
+                std::uniform_int_distribution<int> realizeMistake(500, 1000);
+                sleep(realizeMistake(_generator));
+
+                // 3. Fix mistakes made in step #1.
+                std::uniform_int_distribution<int> anotherDelay(100, 200);
+
+                for (unsigned int j = 0; j < badCharacters; j++) {
+                    tap(automat::BACK);
+                    sleep(anotherDelay(_generator));
+                }
+            }
+        }
+
+        return true;
+    }
+
+    void Automat::sleep(unsigned int ms)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 	}
