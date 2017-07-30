@@ -71,8 +71,8 @@ namespace automat
 
 		point dest = {
             // Constrain the points to be within the screen.
-            std::min(std::max((LONG)x, 0L), resolution.x),
-            std::min(std::max((LONG)y, 0L), resolution.y)
+            std::min(std::max((LONG)x, 0L), resolution.x - 1),
+            std::min(std::max((LONG)y, 0L), resolution.y - 1)
         };
 
 		const std::string proc_name("moveMouse");
@@ -103,8 +103,8 @@ namespace automat
 			point a = { curr.x, curr.y };
 			point b = {
 				// Constrain the points to be within the screen.
-				std::min(std::max((LONG)dest.x, 0L), resolution.x),
-                std::min(std::max((LONG)dest.y, 0L), resolution.y)
+				std::min(std::max((LONG)dest.x, 0L), resolution.x - 1),
+                std::min(std::max((LONG)dest.y, 0L), resolution.y - 1)
 			};
 
 			// If the slope is steep, invert the x and y values so
@@ -175,8 +175,8 @@ namespace automat
 
         point dest = {
             // Constrain the points to be within the screen.
-            std::min(std::max((LONG)x, 0L), resolution.x),
-            std::min(std::max((LONG)y, 0L), resolution.y)
+            std::min(std::max((LONG)x, 0L), resolution.x - 1),
+            std::min(std::max((LONG)y, 0L), resolution.y - 1)
         };
 
         double vx   = 0.0;  // Velocity.x
