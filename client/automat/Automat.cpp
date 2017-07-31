@@ -23,7 +23,7 @@ namespace automat
 		_serial.set_option(boost::asio::serial_port_base::baud_rate(BAUD_RATE));
 	}
 
-	void Automat::calibrate()
+	double Automat::calibrate()
 	{
 		double factor = 1.0;
 		point resolution = get_resolution();
@@ -62,6 +62,8 @@ namespace automat
 				factor += (std::abs(b.x - a.x) < step ? 0.001 : -0.001);
 			}
 		}
+
+        return factor;
 	}
 
 	bool Automat::move(unsigned int x, unsigned int y)
@@ -243,24 +245,30 @@ namespace automat
         return true;
 	}
 
-	bool Automat::click(Key key)
+	bool Automat::click(Button button)
 	{
-		const std::string proc_name("click");
-		std::map<std::string, std::string> params;
-		params["button"] = std::to_string(key);
+        // Hold down button.
+        hold(button);
 
-		// Construct and send a remote procedure call request.
-		send_request(construct_request(proc_name, params));
+        // Wait between 10-50ms.
+        std::uniform_int_distribution<int> distribution(10, 50);
+        sleep(distribution(_generator));
 
-		// Receive and parse the response.
-		return parse_response(read_response());
+        // Release the button.
+        return release(button);
 	}
 
-	bool Automat::hold(Key key)
+    bool Automat::double_click(Button button)
+    {
+        // Double click.
+        return click(button) && click(button);
+    }
+
+	bool Automat::hold(Button button)
 	{
 		const std::string proc_name("hold");
 		std::map<std::string, std::string> params;
-		params["button"] = std::to_string(key);
+		params["button"] = std::to_string(button);
 
 		// Construct and send a remote procedure call request.
 		send_request(construct_request(proc_name, params));
@@ -269,11 +277,11 @@ namespace automat
 		return parse_response(read_response());
 	}
 
-	bool Automat::unhold(Key key)
+	bool Automat::unhold(Button button)
 	{
 		const std::string proc_name("unhold");
 		std::map<std::string, std::string> params;
-		params["button"] = std::to_string(key);
+		params["button"] = std::to_string(button);
 
 		// Construct and send a remote procedure call request.
 		send_request(construct_request(proc_name, params));

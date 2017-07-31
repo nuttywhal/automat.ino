@@ -16,6 +16,7 @@ namespace automat
 	// Represents a keyboard key or a mouse button. The values are mapped to
 	// the ASCII character set. Keyboard modifiers and mouse button constants
 	// are defined in constants.h.
+    typedef unsigned int Button;
 	typedef unsigned int Key;
 
 	// Stores screen coordinates of the cursor.
@@ -46,7 +47,7 @@ namespace automat
 		 * `n' pixels (or factor * Arduino units) relative to the current mouse
 		 * position.
 		 */
-		void calibrate();
+		double calibrate();
 
 		/**
 		 * Move the mouse cursor from the current location to the specified location.
@@ -92,9 +93,16 @@ namespace automat
 		 * Sends a momentary click to the computer at the location of the cursor.
 		 * This is the same as pressing and immediately releasing the mouse button.
 		 *
-		 * \param Button - The mouse button to press with.
+		 * \param Button - The mouse button to click with.
 		 */
-		bool click(Key key = M_LEFT);
+		bool click(Button button = M_LEFT);
+
+        /**
+         * Sends two clicks, one immediately after the other.
+         *
+         * \param Button - The mouse button to double click with.
+         */
+        bool double_click(Button button = M_LEFT);
 
 		/**
 		 * Sends a button press to a connected computer. A press is the equivalent of
@@ -103,7 +111,7 @@ namespace automat
 		 *
 		 * \param Button - The mouse button to hold down.
 		 */
-		bool hold(Key key = M_LEFT);
+		bool hold(Button button = M_LEFT);
 
 		/**
 		 * Sends a message that a previously pressed button (invoked through hold()) is
@@ -111,7 +119,7 @@ namespace automat
 		 *
 		 * \param Button - The mouse button to release.
 		 */
-		bool unhold(Key key = M_LEFT);
+		bool unhold(Button button = M_LEFT);
 
 		/**
 		 * When called, press() functions as if a key were pressed and held
