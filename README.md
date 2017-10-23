@@ -1,4 +1,4 @@
-# ![automat](https://user-images.githubusercontent.com/26120940/28747795-7d87ae9c-745c-11e7-8e50-0f4f9044f699.png)
+# <img width="300" alt="automat.ino" src="https://user-images.githubusercontent.com/26120940/28747795-7d87ae9c-745c-11e7-8e50-0f4f9044f699.png" />
 
 **automat**.ino is a JSON-RPC API wrapper for Arduino's [Mouse and Keyboard libraries](https://www.arduino.cc/en/Reference/MouseKeyboard). It allows the mouse and keyboard functions to be invoked remotely from a PC over a serial port, effectively allowing a programmer to use an Arduino as a programmable hardware mouse and keyboard.
 
@@ -51,7 +51,7 @@ void script(void)
     // Setup the Automat client.
     automat::Automat automat("COM4");
     automat.calibrate();
-  
+
     // Write your script here.
     automat.wind_mouse(0, 0);
     automat.sleep(2000);
