@@ -29,7 +29,7 @@ The **automat**.ino client code is built as a static library (`.lib`) that is to
 
 # Setup
 
-1. Download the latest **automat**.ino release here and un-zip.
+1. Download the latest **automat**.ino release [here](https://github.com/nuttywhal/automat.ino/releases) and un-zip.
 2. Connect the Arduino board to the computer via a USB connection.
 3. In the Arduino IDE, add the *arduino-json-rpc* dependency to the Library Manager.
    - `Sketch` → `Include Library` → `Add .ZIP Library...` → `arduino/json-rpc.zip`.
