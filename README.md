@@ -12,11 +12,20 @@ Only Arduino boards that have Mouse and Keyboard library support can be used. Th
 - [Arduino IDE 1.6.x or later](https://www.arduino.cc/en/Main/Software)
 - Microsoft Windows
 
-
 # Dependencies
 
 - [arduino-json-rpc](https://github.com/cloud-rocket/arduino-json-rpc) (included)
 - [Boost C++ Libraries](http://www.boost.org/)
+
+# Building
+
+The **automat**.ino client code is built as a static library (`.lib`) that is to be linked into your C++ project.
+
+1. Install Visual Studio 2017 (with the Visual C++ toolset and Windows 10 SDK modules).
+2. Open the Visual Studio project file (`automat.vcxproj`) in Visual Studio 2017.
+3. Configure `Project Properties` to use the correct Windows 10 SDK version.
+4. Configure `Project Properties` to specify the Boost include and library paths.
+5. Compile the static library: `Build` → `Build Solution`.
 
 # Setup
 
