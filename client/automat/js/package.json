@@ -1,0 +1,26 @@
+{
+  "name": "automat",
+  "version": "1.0.0",
+  "description": "A JSON-RPC API wrapper for Arduino's mouse and keyboard libraries that provide automation primitives for writing bots.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuttywhal/automat.ino.git"
+  },
+  "keywords": [
+    "bot",
+    "mouse",
+    "keyboard",
+    "arduino",
+    "automation"
+  ],
+  "author": "Nuttywhal <nutty@wha.al>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nuttywhal/automat.ino/issues"
+  },
+  "homepage": "https://github.com/nuttywhal/automat.ino#readme"
+}
