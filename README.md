@@ -43,6 +43,8 @@ Make sure to disable mouse acceleration (A.K.A. pointer precision) under the Win
 
 Include the `Automat.h` header file in your project, then create an instance of the `automat::Automat` class by passing the name of the serial (COM) port that the Arduino is connected to as an argument to the constructor. The entire API is available through class methods.
 
+Make sure to add the `include/` and `lib/` directories from the Boost libraries and the **automat**.ino release. The `lib/automat.lib` file should be added as a linker dependency.
+
 ```C++
 #include <Automat.h>
 
@@ -62,9 +64,9 @@ void script(void)
     automat.calibrate();
 
     // Write your script here.
-    automat.wind_mouse(0, 0);
+    automat.wind_move(0, 0);
     automat.sleep(2000);
-    automat.wind_mouse(WIDTH, HEIGHT);
+    automat.wind_move(WIDTH, HEIGHT);
 }
 ```
 
